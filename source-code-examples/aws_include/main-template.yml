@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: include template
+
+Parameters:
+    # main-template
+    IncludeBucket:
+        Type: String
+        Default: traininginframainbucket
+
+    # vpc-stack
+    vpccidr:
+        Type: String
+        Default: '10.0.0.0/16'
+        
+    subnetacidr:
+        Type: String
+        Default: "10.0.10.0/24"
+        
+    subnetbcidr:
+        Type: String
+        Default: "10.0.11.0/24"
+
+    # s3-infra
+    MainS3BucketName:
+        Type: String
+        Default: thisiswrongnameofthebucket
+    
+    SecondS3BucketName:
+        Type: String
+        Default: thisisanotherbadbucketname
+        
+Resources:
+    Fn::Transform:
+    #   - Name: AWS::Include
+    #     Parameters:
+    #         Location: !Sub 's3://${IncludeBucket}/vpc-stack.yml'
+    #   - Name: AWS::Include
+    #     Parameters:
+    #         Location: !Sub 's3://${IncludeBucket}/ecs-infra.yml'
+      - Name: AWS::Include
+        Parameters:
+            Location: !Sub 's3://${IncludeBucket}/s3-infra.yml'
+
+# Outputs:
+#     # vpc-stack
+#     OurVPC:
+#         Description: Name of the VPC
+#         Value: !Ref BaseVpc
+#         Export:
+#           Name:
+#             Fn::Join:
+#               - '-'
+#               - - Fn::Sub: ${AWS::StackName}
+#                 - "Name"
+    
+#     OurVPCcidr:
+#         Description: CIDR of Our VPC
+#         Value: !GetAtt BaseVpc.CidrBlock
+#         Export:
+#         Name: !Sub "${AWS::StackName}-VpcCidr"
+        
+#     OurVpcId:
+#         Description: VPCID for other stacks
+#         Value: !Ref BaseVpc
+#         Export:
+#         Name: !Sub "${AWS::StackName}-VpcId"
+    
+#     OurSubnetA:
+#         Description: subnetA
+#         Value: !Ref PublicSubnetA
+#         Export:
+#         Name: !Sub "${AWS::StackName}-SubnetA"
+
+#     OurSubnetB:
+#         Description: subnetB
+#         Value: !Ref PublicSubnetB
+#         Export:
+#         Name: !Sub "${AWS::StackName}-SubnetB"
+    
+#     # ecs-infra
+#     EcsCluster:
+#         Description: ECS name
+#         Value: !Ref EcsCluster
+#         Export:
+#             Name: !Sub "${AWS::StackName}-EcsClusterName"
+    
+#     EcrRegistry:
+#         Description: ECR Registry name
+#         Value: !Ref EcrRepository
+#         Export:
+#             Name: !Sub '${AWS::StackName}-EcrRegistry'

@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Conditional execution
+
+Parameters:
+    EnvironmentType:
+        Description: Select environment type
+        Type: String
+        AllowedValues: [prod, dev]
+        Default: "dev"
+    
+    MultiBucket:
+        Description: Single buckets
+        Type: String
+        AllowedValues: ["Yes", "No"]
+        Default: "No"
+
+Conditions:
+    IsProduction:
+        !Equals [!Ref EnvironmentType, prod]
+    
+    IsMultiBucket:
+        !Equals [!Ref MultiBucket, "Yes"]
+
+Resources:
+    FirstS3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: !If [IsProduction, mytrainingproductionbucket, mytrainingdevbucket]
+
+    SecondS3Bucket:
+        Type: AWS::S3::Bucket
+        Condition: IsMultiBucket
+        Properties:
+            BucketName: !If [IsMultiBucket, mysecondtrainingproductionbucket, mysecondtrainingdevbucket]

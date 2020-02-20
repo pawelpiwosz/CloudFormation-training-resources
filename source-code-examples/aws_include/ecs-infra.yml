@@ -1,0 +1,13 @@
+# Resources:
+
+EcrRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+        RepositoryName: 
+            "Fn::Sub": "${AWS::StackName}"
+
+EcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+        ClusterName:
+            "Fn::Sub": "${AWS::StackName}"

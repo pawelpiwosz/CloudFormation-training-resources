@@ -1,0 +1,12 @@
+# Resources:
+MainS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+        BucketName: 
+            Ref: MainS3BucketName
+
+SecondS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+        BucketName: 
+            Ref: SecondS3BucketName

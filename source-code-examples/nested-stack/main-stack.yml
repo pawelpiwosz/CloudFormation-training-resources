@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Nested stack templates
+
+Parameters:
+  NestedBucket:
+    Type: String
+    Default: cloudformation-training-pawel
+
+  vpccidr:
+    Type: String
+    Default: "10.0.0.0/16"
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+
+  subnetacidr:
+    Type: String
+    Default: "10.0.10.0/24"
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+
+  subnetbcidr:
+    Type: String
+    Default: "10.0.11.0/24"
+    AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
+
+  s3bucketname:
+    Type: String
+    Default: thisisnotthenameyouarelookingfor
+
+Resources:
+  NestedVpcStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        nestedvpccidr: !Ref vpccidr
+        nestedsubnetacidr: !Ref subnetacidr
+        nestedsubnetbcidr: !Ref subnetbcidr
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-vpc.yml'
+      TimeoutinMinutes: 5
+    
+  NestedS3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        nesteds3bucketname: !Ref s3bucketname
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-s3.yml'
+      TimeoutinMinutes: 3

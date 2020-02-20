@@ -1,0 +1,74 @@
+# Resources:
+BaseVpc:
+  Type: AWS::EC2::VPC
+  Properties:
+    CidrBlock: 
+      Ref: vpccidr
+    EnableDnsSupport: true
+    EnableDnsHostnames: true
+
+PublicSubnetA:
+  Type: AWS::EC2::Subnet
+  Properties:
+    VpcId:
+      Ref: BaseVpc
+    AvailabilityZone: "eu-west-1a"
+    # AvailabilityZone: "Fn::Select":
+    #   - "0"
+    #   - "Fn::GetAZs": Ref: 'AWS::Region'
+    CidrBlock: 
+      Ref: subnetacidr
+    MapPublicIpOnLaunch: true
+
+PublicSubnetB:
+  Type: AWS::EC2::Subnet
+  Properties:
+    VpcId:
+      Ref: BaseVpc
+    AvailabilityZone: "eu-west-1b"
+    CidrBlock: 
+      Ref: subnetbcidr
+    MapPublicIpOnLaunch: true
+
+PublicRouteTable:
+  Type: AWS::EC2::RouteTable
+  Properties:
+    VpcId:
+      Ref: BaseVpc
+
+PublicSubnetAPublicRouteTableAssoc:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    SubnetId:
+      Ref: PublicSubnetA
+    RouteTableId:
+      Ref: PublicRouteTable
+
+PublicSubnetBPublicRouteTableAssoc:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    SubnetId:
+      Ref: PublicSubnetB
+    RouteTableId:
+      Ref: PublicRouteTable
+
+IG:
+  Type: AWS::EC2::InternetGateway
+
+AttachIG:
+  Type: AWS::EC2::VPCGatewayAttachment
+  Properties:
+    InternetGatewayId:
+      Ref: IG
+    VpcId:
+      Ref: BaseVpc
+
+PublicRoute:
+  Type: AWS::EC2::Route
+  DependsOn: AttachIG
+  Properties:
+    RouteTableId:
+      Ref: PublicRouteTable
+    DestinationCidrBlock: 0.0.0.0/0
+    GatewayId:
+      Ref: IG

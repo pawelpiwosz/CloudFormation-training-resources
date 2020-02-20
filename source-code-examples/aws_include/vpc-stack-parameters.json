@@ -1,0 +1,14 @@
+[
+    {
+        "ParameterKey": "vpccidr",
+        "ParameterValue": "10.1.0.0/16"
+    },
+    {
+        "ParameterKey": "subnetacidr",
+        "ParameterValue": "10.1.0.0/24"
+    },
+    {
+        "ParameterKey": "subnetbcidr",
+        "ParameterValue": "10.1.1.0/24"
+    }
+]

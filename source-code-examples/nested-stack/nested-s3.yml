@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Nested stack templates
+
+Parameters:
+  nesteds3bucketname:
+    Type: String
+    Default: thisisnotthenameyouarelookingfor
+
+Resources:
+  TestBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 
+        Ref: nesteds3bucketname

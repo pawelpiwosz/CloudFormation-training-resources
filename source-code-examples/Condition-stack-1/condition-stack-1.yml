@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Conditional execution
+
+Parameters:
+    EnvironmentType:
+        Description: Select environment type
+        Type: String
+        AllowedValues: [prod, dev]
+        Default: "dev"
+
+Conditions:
+    IsProduction:
+        !Equals [!Ref EnvironmentType, prod]
+
+Resources:
+    FirstS3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: !If [IsProduction, mytrainingproductionbucket, mytrainingdevbucket]
+
+        

@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: How to execute template
+
+Parameters:
+    LatestAmiId:
+        Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+        Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+Resources:
+    Myinstance:
+        Type: AWS::EC2::Instance
+        Properties:
+            ImageId: !Ref LatestAmiId
+            IamInstanceProfile: !Ref MyEc2Role
+            InstanceType: t2.micro
+            NetworkInterfaces: 
+              - AssociatePublicIpAddress: "true"
+                DeviceIndex: "0"
+                GroupSet: 
+                  - !Ref myec2SG
+                SubnetId: 
+                    !ImportValue mytest-SubnetA
+        #DependsOn: MyEc2Role
+    
+    myec2SG:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Test SG
+            VpcId: !ImportValue mytest-VpcId
+            SecurityGroupIngress:
+              - IpProtocol: tcp
+                FromPort: 443
+                ToPort: 443
+                CidrIp: 0.0.0.0/0
+
+    MyEc2Role:
+        Type: AWS::IAM::Role
+        Properties:
+            Description: Test Role
+            Path: /
+            RoleName: my-ec2-role
+            AssumeRolePolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                  - Effect: Allow
+                    Principal:
+                        Service:
+                            - ec2.amazonaws.com
+                    Action:
+                        - 'sts:AssumeRole'
+            Policies:
+              - PolicyName: my-ec2-policy
+                PolicyDocument:
+                    Version: 2012-10-17
+                    Statement:
+                      - 
+                        Effect: Allow
+                        Action: 
+                            - s3:*
+                        Resource: 
+                          -
+                            !Join
+                              - ''
+                              - - 'arn:aws:s3:::'
+                                - !ImportValue mytest-BucketName      

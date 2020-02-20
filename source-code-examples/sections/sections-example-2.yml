@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Metadata example 2
+
+Parameters: 
+    InstanceType: 
+        Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+        Type: String
+        Default: t2.micro
+        AllowedValues: 
+            - t2.micro
+            - m1.small
+            - m1.large
+        
+    KeyName:
+        Description: Amazon EC2 Key Pair
+        Type: "AWS::EC2::KeyPair::KeyName"
+
+    VPCID:
+        Description: VPC IDs
+        Type: "List<AWS::EC2::VPC::Id>"
+
+    SubnetID:
+        Description: Subnet IDs
+        Type: "List<AWS::EC2::Subnet::Id>"
+
+    SecurityGroupID:
+        Description: Security Group IDs
+        Type: "List<AWS::EC2::SecurityGroup::GroupName>"
