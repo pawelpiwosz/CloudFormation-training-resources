@@ -1,0 +1,26 @@
+[
+    {
+        "ParameterKey": "AdminGroup",
+        "ParameterValue": "MyAdmins"
+    },
+    {
+        "ParameterKey": "UserGroup",
+        "ParameterValue": "MyUsers"
+    },
+    {
+        "ParameterKey": "AdminUserName",
+        "ParameterValue": "AdminUser"
+    },
+    {
+        "ParameterKey": "UserUserName",
+        "ParameterValue": "JustUser"
+    },
+    {
+        "ParameterKey": "AdminUserPass",
+        "ParameterValue": "MySecret#11!Password"
+    },
+    {
+        "ParameterKey": "UserUserPass",
+        "ParameterValue": "AnotherSecret#11!Password"
+    }
+]

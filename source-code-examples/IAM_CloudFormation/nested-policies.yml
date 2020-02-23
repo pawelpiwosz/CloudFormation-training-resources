@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM with Nested Stack
+
+Parameters:
+  AdminGroup:
+    Type: String
+
+  UserGroup:
+    Type: String
+
+Resources:
+  MyPolicyFullAccessToS3:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Join
+        - '-'
+        - - !Ref AWS::Region
+          - MyPolicyFullAccessToS3
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: 'S3:*'
+            Resource: '*'
+      Groups:
+      - !ImportValue
+        "Fn::Join":
+          - '-'
+          - - 'Group'
+            - !Ref AWS::Region
+            - !Ref AdminGroup
+            - 'Name'
+      - !ImportValue 
+        "Fn::Join":
+          - '-'
+          - - 'Group'
+            - !Ref AWS::Region
+            - !Ref UserGroup
+            - 'Name'
+
+  MyPolicyFullAccessToEC2:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      ManagedPolicyName: !Join
+        - '-'
+        - - !Ref AWS::Region
+          - MyPolicyFullAccessToEc2
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: 'EC2:*'
+            Resource: '*'
+      Groups:
+      - !ImportValue
+        "Fn::Join":
+          - '-'
+          - - 'Group'
+            - !Ref AWS::Region
+            - !Ref AdminGroup
+            - 'Name'
+Outputs:
+  MyPolicyFullAccessToEC2:
+    Value: 
+      !Ref MyPolicyFullAccessToEC2
+    Export:
+      Name: !Join
+      - '-'
+      - - 'Policy'
+        - !Ref AWS::Region
+        - 'MyPolicyFullAccessToEC2'

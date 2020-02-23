@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM with Nested Stack
+
+Parameters:
+
+  AdminGroup:
+    Type: String
+
+  UserGroup:
+    Type: String
+  
+  AdminUserName:
+    Type: String
+
+  UserUserName:
+    Type: String
+
+  AdminUserPass:
+    Type: String
+    NoEcho: true
+
+  UserUserPass:
+    Type: String
+    NoEcho: true
+
+Resources:
+  UserAdmin:
+    Type: AWS::IAM::User
+    Properties:
+      LoginProfile:
+        Password:
+          !Ref AdminUserPass
+        PasswordResetRequired: true
+      Groups:
+        - !ImportValue
+          "Fn::Join":
+            - '-'
+            - - 'Group'
+              - !Ref AWS::Region
+              - !Ref AdminGroup
+              - 'Name'
+      UserName:
+        !Join
+          - '-'
+          - - !Ref AWS::Region
+            - !Ref AdminUserName
+
+  UserUser:
+    Type: AWS::IAM::User
+    Properties:
+      LoginProfile:
+        Password:
+          !Ref UserUserPass
+        PasswordResetRequired: true
+      Groups:
+        - !ImportValue
+          "Fn::Join":
+            - '-'
+            - - 'Group'
+              - !Ref AWS::Region
+              - !Ref UserGroup
+              - 'Name'
+      UserName:
+        !Join
+          - '-'
+          - - !Ref AWS::Region
+            - !Ref UserUserName

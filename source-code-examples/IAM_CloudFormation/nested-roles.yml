@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM with Nested Stack
+
+Resources:
+  ManageEc2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: IAM role for EC2 and Lambda management from EC2 instances
+      Path: /
+      RoleName: 
+        "Fn::Join":
+          - '-'
+          - - !Ref AWS::Region
+            - 'MyMasterRole'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: MyMasterRoleAttachedPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Effect: Allow
+                Action: ec2:*
+                Resource: "*"
+              -
+                Effect: Allow
+                Action: lambda:*
+                Resource: "*"
+
+  OtherRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Another training role
+      RoleName: !Join
+        - '-'
+        - - !Ref AWS::Region
+          - 'MyOtherRole'
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - !ImportValue
+          "Fn::Join":
+            - '-'
+            - - 'Policy'
+              - !Ref AWS::Region
+              - 'MyPolicyFullAccessToEC2'

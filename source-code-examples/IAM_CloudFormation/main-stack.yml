@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM with Nested Stack
+
+Parameters:
+  NestedBucket:
+    Type: String
+    Default: cloudformation-training-pawel
+
+  AdminUserName:
+    Type: String
+
+  UserUserName:
+    Type: String
+
+  AdminUserPass:
+    Type: String
+    NoEcho: true
+
+  UserUserPass:
+    Type: String
+    NoEcho: true
+
+  AdminGroup:
+    Type: String
+
+  UserGroup:
+    Type: String
+
+Resources:
+  NestedGroupsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        AdminGroup: !Ref AdminGroup
+        UserGroup: !Ref UserGroup
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-groups.yml'
+      TimeoutInMinutes: 5
+
+  NestedPoliciesStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        AdminGroup: !Ref AdminGroup
+        UserGroup: !Ref UserGroup
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-policies.yml'
+      TimeoutInMinutes: 5
+    DependsOn: NestedGroupsStack
+
+  NestedUsersStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        AdminUserName: !Ref AdminUserName
+        UserUserName: !Ref UserUserName
+        AdminUserPass: !Ref AdminUserPass
+        UserUserPass: !Ref UserUserPass
+        AdminGroup: !Ref AdminGroup
+        UserGroup: !Ref UserGroup
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-users.yml'
+      TimeoutInMinutes: 5
+    DependsOn:
+      - NestedGroupsStack
+      - NestedPoliciesStack
+
+  NestedRolesStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-roles.yml'
+      TimeoutInMinutes: 5
+    DependsOn:
+      - NestedPoliciesStack

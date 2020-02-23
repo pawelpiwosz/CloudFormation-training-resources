@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM with Nested Stack
+
+Parameters:
+  NestedBucket:
+    Type: String
+    Default: cloudformation-training-pawel
+
+  AdminGroup:
+    Type: String
+    #Default: MyAdmin
+
+  UserGroup:
+    Type: String
+    #Default: MyUser
+
+Resources:
+  TemplateAdminGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: !Join
+        - '-'
+        - - !Ref AWS::Region
+          - 'MyAdmins'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  TemplateUserGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: !Join
+        - '-'
+        - - !Ref AWS::Region
+          - 'MyUsers'
+
+Outputs:
+  AdminGroupArn:
+    Value:
+      !GetAtt TemplateAdminGroup.Arn
+    Export:
+      Name: !Join
+        - '-'
+        - - 'Group'
+          - !Ref AWS::Region
+          - !Ref AdminGroup
+          - 'Arn'
+
+  AdminGroupName:
+    Value:
+      !Ref TemplateAdminGroup
+    Export:
+      Name: !Join
+        - '-'
+        - - 'Group'
+          - !Ref AWS::Region
+          - !Ref AdminGroup
+          - 'Name'
+
+  UserGroupArn:
+    Value:
+      !GetAtt TemplateUserGroup.Arn
+    Export:
+      Name: !Join
+        - '-'
+        - - 'Group'
+          - !Ref AWS::Region
+          - !Ref UserGroup
+          - 'Arn'
+
+  UserGroupName:
+    Value:
+      !Ref TemplateUserGroup
+    Export:
+      Name: !Join
+        - '-'
+        - - 'Group'
+          - !Ref AWS::Region
+          - !Ref UserGroup
+          - 'Name'

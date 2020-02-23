@@ -1,0 +1,5 @@
+# Group names for manage
+AdminUserName: AdminUser
+UserUserName: JustUser
+AdminUserPass: MySecret#11!Password
+UserUserPass: AnotherSecret#11!Password

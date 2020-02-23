@@ -34,7 +34,7 @@ Resources:
         nestedsubnetacidr: !Ref subnetacidr
         nestedsubnetbcidr: !Ref subnetbcidr
       TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-vpc.yml'
-      TimeoutinMinutes: 5
+      TimeoutInMinutes: 5
     
   NestedS3Stack:
     Type: AWS::CloudFormation::Stack
@@ -42,4 +42,4 @@ Resources:
       Parameters:
         nesteds3bucketname: !Ref s3bucketname
       TemplateURL: !Sub 'https://s3.amazonaws.com/${NestedBucket}/nested-s3.yml'
-      TimeoutinMinutes: 3
+      TimeoutInMinutes: 3
