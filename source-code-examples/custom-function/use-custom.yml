@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Use Custom Function
+
+Resources:
+  CustomResource:
+    Type: Custom::CustomResource
+    Properties:
+      ServiceToken: !ImportValue MyCustomFunctionArn
+      OriginStackName: 
+        !Ref AWS::StackName
+
+#   TestBucket:
+#     Type: AWS::S3::Bucket
