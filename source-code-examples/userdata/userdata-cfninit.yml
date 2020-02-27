@@ -17,13 +17,16 @@ Resources:
   Myinstance:
     Type: AWS::EC2::Instance
     DependsOn: mys3
+    CreationPolicy:
+      ResourceSignal: 
+        Timeout: PT10M
     Properties:
       ImageId: !Ref LatestAmiId
       InstanceType: t2.micro
       NetworkInterfaces: 
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
-      KeyName: presentation-key
+      KeyName: work
       UserData:
         "Fn::Base64":
           !Sub |
@@ -45,7 +48,7 @@ Resources:
               content: !Sub |
                 [cfn-auto-reloader-hook]
                 triggers=post.update
-                path=Resources.EC2.Metadata.AWS::CloudFormation::Init
+                path=Resources.Myinstance.Metadata.AWS::CloudFormation::Init
                 # Installation trigger
                 action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Myinstance --configsets webserver --region ${AWS::Region}
               mode: "000400"
@@ -87,11 +90,11 @@ Resources:
             01_clone_repo_1:
               cwd: "/tmp"
               command: "git clone https://github.com/kubernetes/kubernetes"
-            02_inject_dbhost:
+            02_clone_repo_2:
               cwd: "/tmp"
               command: "git clone https://github.com/Microsoft/vscode"
             03_update_html:
               cwd: "/var/www/html"
-              test:  "test ! -e /var/www/html/index.html"
-              command: "echo 'My bucket is: ${mys3.DomainName} and its ARN is: ${mys3.Arn}'' >> index.html"
+              test:  "test -e /var/www/html/index.html"
+              command: "echo 'My bucket is: ${mys3.DomainName} and its ARN is: ${mys3.Arn}' >> index.html"
             
