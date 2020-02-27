@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Userdata CFNinit
+
+Parameters:
+  LatestAmiId:
+    Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+  MyString:
+    Type: String
+    Default: "Hello from CFNinit Userdata!"
+
+Resources:
+  mys3:
+    Type: AWS::S3::Bucket
+
+  Myinstance:
+    Type: AWS::EC2::Instance
+    DependsOn: mys3
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: t2.micro
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+      KeyName: presentation-key
+      UserData:
+        "Fn::Base64":
+          !Sub |
+            #!/bin/bash
+            yum update -y aws-cfn-bootstrap
+            /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Myinstance --configsets webserver --region ${AWS::Region}
+            yum -y update
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource Myinstance --region ${AWS::Region}
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          webserver:
+            - "configure_cfn"
+            - "install_webserver"
+            - "playalittle"
+        configure_cfn:
+          files:
+            /etc/cfn/hooks.d/cfn-auto-reloader.conf:
+              content: !Sub |
+                [cfn-auto-reloader-hook]
+                triggers=post.update
+                path=Resources.EC2.Metadata.AWS::CloudFormation::Init
+                # Installation trigger
+                action=/opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource Myinstance --configsets webserver --region ${AWS::Region}
+              mode: "000400"
+              owner: root
+              group: root
+            /etc/cfn/cfn-hup.conf:
+              content: !Sub |
+                [main]
+                stack=${AWS::StackId}
+                region=${AWS::Region}
+                verbose=true
+                interval=5
+              mode: "000400"
+              owner: root
+              group: root
+            /var/www/html/index.html:
+              content: !Ref MyString
+          services:
+            sysvinit:
+              cfn-hup:
+                enabled: "true"
+                ensureRunning: "true"
+                files:
+                  - "/etc/cfn/cfn-hup.conf"
+                  - "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+        install_webserver:
+          packages:
+            yum:
+              httpd: []
+              php: []
+              git: []
+          services:
+            sysvinit:
+              httpd:
+                enabled: "true"
+                ensureRunning: "true"
+        playalittle:
+          commands:
+            01_clone_repo_1:
+              cwd: "/tmp"
+              command: "git clone https://github.com/kubernetes/kubernetes"
+            02_inject_dbhost:
+              cwd: "/tmp"
+              command: "git clone https://github.com/Microsoft/vscode"
+            03_update_html:
+              cwd: "/var/www/html"
+              test:  "test ! -e /var/www/html/index.html"
+              command: "echo 'My bucket is: ${mys3.DomainName} and its ARN is: ${mys3.Arn}'' >> index.html"
+            
