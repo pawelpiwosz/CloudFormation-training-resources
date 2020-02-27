@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Userdata classic
+
+Parameters:
+  LatestAmiId:
+    Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+  MyString:
+    Type: String
+    Default: "Hello from classic Userdata!"
+
+Resources:
+  mys3:
+    Type: AWS::S3::Bucket
+
+  Myinstance:
+    Type: AWS::EC2::Instance
+    DependsOn: mys3
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: t2.micro
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+      KeyName: presentation-key
+      UserData:
+        "Fn::Base64":
+          !Sub |
+            #!/bin/bash
+            yum install httpd php mysql php-mysql -y
+            yum update -y
+            chkconfig httpd on
+            service httpd start
+            cd /var/www/html
+            rm -rf *
+            touch index.html
+            echo "${MyString} <br>" > index.html
+            echo "My bucket is: ${mys3.DomainName} and its ARN is: ${mys3.Arn}" >> index.html
