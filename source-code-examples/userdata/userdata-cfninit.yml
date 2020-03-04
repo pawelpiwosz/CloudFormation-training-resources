@@ -26,7 +26,7 @@ Resources:
       NetworkInterfaces: 
         - AssociatePublicIpAddress: "true"
           DeviceIndex: "0"
-      KeyName: work
+      KeyName: presentation-key
       UserData:
         "Fn::Base64":
           !Sub |
@@ -65,7 +65,11 @@ Resources:
               owner: root
               group: root
             /var/www/html/index.html:
-              content: !Ref MyString
+              content: 
+                !Sub |
+                  ${MyString}
+                  <br>
+                  My bucket is: ${mys3.DomainName} and its ARN is: ${mys3.Arn}
           services:
             sysvinit:
               cfn-hup:
@@ -93,8 +97,3 @@ Resources:
             02_clone_repo_2:
               cwd: "/tmp"
               command: "git clone https://github.com/Microsoft/vscode"
-            03_update_html:
-              cwd: "/var/www/html"
-              test:  "test -e /var/www/html/index.html"
-              command: "echo 'My bucket is: ${mys3.DomainName} and its ARN is: ${mys3.Arn}' >> index.html"
-            
